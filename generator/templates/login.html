@@ -1,0 +1,29 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Login | QA Automation AI{% endblock %}
+
+{% block content %}
+
+<div class="login-card">
+  <h2>Iniciar Sesión</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Usuario" required />
+    <input type="password" name="password" placeholder="Contraseña" required />
+    <button type="submit">Ingresar</button>
+  </form>
+
+  {% if messages %}
+    {% for message in messages %}
+      <p class="error">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
+  <p class="login-footer">Uso académico • Acceso controlado</p>
+</div>
+
+<script src="{% static 'js/login.js' %}"></script>
+
+{% endblock %}

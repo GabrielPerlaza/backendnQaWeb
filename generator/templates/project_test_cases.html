@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Casos de Prueba | {{ project_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-6 py-10">
+
+  <!-- ================= HEADER ================= -->
+  <div class="flex items-center justify-between mb-8">
+
+    <div>
+      <h1 class="text-3xl font-bold">
+        Casos de prueba
+      </h1>
+      <p class="text-slate-400 mt-1">
+        Proyecto: <span class="font-medium text-slate-200">{{ project_name }}</span>
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+
+      <!-- DESCARGAR -->
+      {% if test_cases_html %}
+        <a href="{% url 'download_project_test_cases' project.id %}"
+           class="bg-green-600 hover:bg-green-700
+                  px-5 py-2 rounded-xl font-semibold transition">
+          ⬇ Descargar
+        </a>
+      {% endif %}
+
+      <!-- VOLVER -->
+      <a href="{% url 'projects' %}"
+         class="bg-slate-700 hover:bg-slate-600
+                px-5 py-2 rounded-xl font-semibold transition">
+        ← Proyectos
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ================= CONTENIDO ================= -->
+  {% if test_cases_html %}
+    <div class="bg-slate-900 border border-slate-700
+                rounded-2xl p-6 overflow-x-auto">
+
+      <div class="prose prose-invert max-w-none">
+        {{ test_cases_html|safe }}
+      </div>
+
+    </div>
+  {% else %}
+    <div class="bg-slate-800 border border-slate-700
+                rounded-2xl p-6 text-slate-400">
+      No se generaron casos de prueba para este proyecto.
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

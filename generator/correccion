@@ -1,0 +1,35 @@
+from models import Project, UsageMetric
+from django.contrib.auth.models import User
+from django.utils.timezone import now
+import random
+
+# Ajusta si tienes varios usuarios
+user = User.objects.first()
+
+if not user:
+    print("❌ No hay usuarios")
+    exit()
+
+projects = Project.objects.filter(user=user)
+
+if not projects.exists():
+    print("❌ No hay proyectos")
+    exit()
+
+for project in projects:
+    # Evitar duplicar métricas
+    if UsageMetric.objects.filter(project=project).exists():
+        continue
+
+    cases = random.randint(5, 20)
+
+    UsageMetric.objects.create(
+        user=user,
+        project=project,
+        date=now().date(),
+        total_ai_responses=cases,
+        estimated_time_saved_minutes=cases * 3,
+        estimated_accuracy=round(random.uniform(0.85, 0.98), 2)
+    )
+
+print("✅ Métricas creadas correctamente")

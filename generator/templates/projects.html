@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Proyectos | QA Automation AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+  <!-- Encabezado -->
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">Proyectos</h1>
+    <a href="{% url 'upload_project'%}?chat_id={{ 1 }}" 
+       class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-semibold transition">
+       + Nuevo Proyecto
+    </a>
+  </div>
+
+  <!-- Lista de proyectos -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+  {% for project in projects %}
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6
+                hover:border-blue-500 transition flex flex-col justify-between">
+
+      <div>
+        <h2 class="text-xl font-semibold mb-1">
+          {{ project.name }}
+        </h2>
+
+        <p class="text-slate-400 text-sm">
+          {{ project.description|default:"Sin descripción"|truncatechars:100 }}
+        </p>
+      </div>
+
+      <!-- FOOTER CARD -->
+      <div class="mt-6 flex items-center justify-between text-sm">
+
+        {% if project.test_cases %}
+          <span class="text-green-400 font-medium">
+            ✅ Casos generados
+          </span>
+          <div class="flex items-center gap-3">
+
+            <a href="{% url 'project_test_cases' project.id %}"
+              class="text-blue-400 hover:underline font-semibold">
+              Ver Casos de preuba →
+            </a>
+
+            <a href="{% url 'download_project_test_cases' project.id %}"
+              class="text-green-400 hover:underline font-semibold">
+              Descargar casos de prueba → 
+            </a>
+
+          </div>
+        {% else %}
+          <span class="text-yellow-400">
+            ⏳ Sin casos
+          </span>
+
+          <a href="{% url 'project_test_cases' project.id %}"
+             class="text-blue-400 hover:underline">
+            Generar →
+          </a>
+        {% endif %}
+
+          <a href="{% url 'delete_project' project.id %}"
+            onclick="return confirmDelete('¿Eliminar este proyecto?')"
+            class="text-red-500 hover:text-red-700">
+            Eliminar
+          </a>
+
+      </div>
+    </div>
+
+  {% empty %}
+    <p class="text-slate-400">No hay proyectos creados.</p>
+  {% endfor %}
+
+</section>
+
+
+</div>
+{% endblock %}

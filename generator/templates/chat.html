@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}Asistente | QA Automation AI{% endblock %}
+
+{% block content %}
+<div class="flex h-[90vh] bg-slate-900 rounded-2xl overflow-hidden">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
+
+    <div class="p-4">
+      <a href="{% url 'chat' %}"
+         class="block w-full text-center bg-blue-600 hover:bg-blue-700
+                text-white py-2 rounded-xl font-semibold">
+        ➕ Nuevo chat
+      </a>
+    </div>
+
+    <div class="px-4 pb-2">
+      <input type="text"
+             id="chat-search"
+             placeholder="Buscar chats..."
+             class="w-full bg-slate-900 text-white px-3 py-2 rounded-lg
+                    text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-2 space-y-1">
+      {% for c in chats %}
+        <a href="{% url 'chat' c.id %}"
+          class="chat-item block px-3 py-2 rounded-lg text-sm truncate
+          {% if chat.id == c.id %} bg-slate-700 text-white {% else %} text-slate-300 hover:bg-slate-700 {% endif %}"
+          data-title="{{ c.title|default:'Chat sin título'|lower }}">
+          {{ c.title|default:"Chat sin título" }}
+        </a>
+      {% empty %}
+        <p class="text-slate-500 text-sm px-3 mt-2">No hay chats aún</p>
+      {% endfor %}
+    </div>
+
+    <div class="border-t border-slate-700 p-3 space-y-2 text-sm">
+      <a href="{% url 'projects' %}" class="block hover:text-white">🗂️ Proyectos</a>
+      <a href="{% url 'history' %}" class="block hover:text-white">📁 Historial</a>
+    </div>
+
+  </aside>
+
+  <!-- ================= CHAT ================= -->
+  <section class="flex-1 flex flex-col">
+
+    <!-- MENSAJES -->
+    <div id="chat-messages"
+         class="flex-1 overflow-y-auto p-6 space-y-4">
+
+      {% for msg in messages %}
+        {% if msg.is_user %}
+          <div class="flex justify-end">
+            <div class="bg-blue-600/90 text-white px-4 py-3 rounded-2xl max-w-xl shadow">
+              <pre class="whitespace-pre-wrap break-words">{{ msg.content }}</pre>
+            </div>
+          </div>
+        {% else %}
+          <div class="flex justify-start">
+            <div class="bg-slate-700 text-white px-4 py-3 rounded-2xl max-w-xl shadow">
+              <div class="ai-markdown">
+                {{ msg.rendered_html|safe }}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <!-- INPUT -->
+    <form class="border-t border-slate-700 p-4 bg-slate-800">
+      {% csrf_token %}
+      <div class="relative flex items-center gap-3 bg-slate-900 rounded-xl px-3 py-2">
+
+        <textarea id="message-input"
+                  rows="1"
+                  placeholder="Escribe aquí…"
+                  class="flex-1 resize-none bg-transparent text-white
+                         focus:outline-none text-sm"></textarea>
+
+        <button type="button"
+                id="send-btn"
+                class="text-blue-500 hover:text-blue-400 text-xl">
+          ▶
+        </button>
+
+      </div>
+    </form>
+
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CHAT_ID = "{{ chat.id }}";
+
+// ======================= MARKDOWN BÁSICO =======================
+function renderMarkdown(text) {
+  if (!text) return "";
+
+  // escapar HTML
+  let safe = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // **negrita**
+  safe = safe.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+  // saltos de línea
+  safe = safe.replace(/\n/g, "<br>");
+
+  return safe;
+}
+
+// ======================= STREAM CHAT =======================
+function sendMessageStream(message) {
+  const chatBox = document.getElementById("chat-messages");
+
+  // Usuario
+  chatBox.insertAdjacentHTML("beforeend", `
+    <div class="flex justify-end">
+      <div class="bg-blue-600/90 text-white px-4 py-3 rounded-2xl max-w-xl shadow">
+        <pre class="whitespace-pre-wrap break-words">${message}</pre>
+      </div>
+    </div>
+  `);
+
+  // AI
+  const aiBubble = document.createElement("div");
+  aiBubble.className = "flex justify-start";
+  aiBubble.innerHTML = `
+    <div class="bg-slate-700 text-white px-4 py-3 rounded-2xl max-w-xl shadow">
+      <div class="ai-stream"></div>
+      <span class="typing">escribiendo…▍</span>
+    </div>
+  `;
+  chatBox.appendChild(aiBubble);
+
+  const aiStream = aiBubble.querySelector(".ai-stream");
+  const typing = aiBubble.querySelector(".typing");
+
+  let rawText = "";
+  let queue = [];
+  let animating = false;
+
+  // 🔁 Animación MIENTRAS escribe
+  function animateQueue() {
+    if (animating || queue.length === 0) return;
+    animating = true;
+
+    const char = queue.shift();
+    rawText += char;
+
+    aiStream.innerHTML = renderMarkdown(rawText);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    setTimeout(() => {
+      animating = false;
+      animateQueue();
+    }, 18); // velocidad escritura
+  }
+
+  fetch(`/chat/${CHAT_ID}/stream/?message=` + encodeURIComponent(message))
+    .then(res => {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      function read() {
+        reader.read().then(({ done, value }) => {
+          if (done) {
+            typing.remove();
+            return;
+          }
+
+          const chunk = decoder.decode(value);
+          for (const ch of chunk) {
+            queue.push(ch);
+          }
+          animateQueue();
+          read();
+        });
+      }
+      read();
+    });
+}
+
+// ======================= DOM READY =======================
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+
+  sendBtn.onclick = () => {
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = "";
+    sendMessageStream(msg);
+  };
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".ai-static").forEach(el => {
+    const raw = el.innerText;
+    el.innerHTML = renderMarkdown(raw);
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("chat-search");
+  const chatItems = document.querySelectorAll(".chat-item");
+
+  if (!searchInput) return;
+
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase().trim();
+
+    chatItems.forEach(chat => {
+      const title = chat.dataset.title;
+      chat.style.display = title.includes(query) ? "block" : "none";
+    });
+  });
+});
+</script>
+
+<style>
+pre {
+  font-family: "Fira Code", "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.ai-stream {
+  font-family: "Fira Code", "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.ai-stream strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.typing {
+  opacity: 0.7;
+  animation: blink 1s infinite;
+  font-size: 0.75rem;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+
+
+.ai-markdown {
+  font-family: "Fira Code", "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.ai-markdown strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+</style>
+
+{% endblock %}

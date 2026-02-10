@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard | QA Automation AI{% endblock %}
+
+{% block content %}
+
+<h1 class="text-3xl font-bold mb-8">Dashboard General</h1>
+
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+  <div class="bg-slate-800 rounded-2xl p-6 text-center">
+    <p class="text-slate-400">Casos Generados</p>
+    <h2 class="text-3xl font-bold mt-2">{{ total_cases }}</h2>
+  </div>
+
+  <div class="bg-slate-800 rounded-2xl p-6 text-center">
+    <p class="text-slate-400">Proyectos Activos</p>
+    <h2 class="text-3xl font-bold mt-2">{{ total_projects }}</h2>
+  </div>
+
+  <div class="bg-slate-800 rounded-2xl p-6 text-center">
+    <p class="text-slate-400">Tiempo Ahorrado</p>
+    <h2 class="text-3xl font-bold text-green-400 mt-2">
+      {{ time_saved }} min
+    </h2>
+  </div>
+
+  <div class="bg-slate-800 rounded-2xl p-6 text-center">
+    <p class="text-slate-400">Precisión</p>
+    <h2 class="text-3xl font-bold text-blue-400 mt-2">
+      {{ accuracy }}%
+    </h2>
+  </div>
+
+</section>
+
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+  <div class="bg-slate-800 rounded-2xl p-6">
+    <h2 class="text-xl font-semibold mb-4">Estado del Sistema</h2>
+    <ul class="space-y-2 text-slate-300">
+      <li>✅ Login operativo</li>
+      <li>✅ Base de datos lista</li>
+      <li>⏳ IA en integración</li>
+    </ul>
+  </div>
+
+  <div class="bg-slate-800 rounded-2xl p-6">
+    <h2 class="text-xl font-semibold mb-4">Última Actividad</h2>
+    {% if last_activity %}
+      <p class="text-slate-300">{{ last_activity }}</p>
+    {% else %}
+      <p class="text-slate-400">Sin actividad aún</p>
+    {% endif %}
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

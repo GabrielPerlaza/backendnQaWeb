@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Casos Generados | QA Automation AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">Casos Generados</h1>
+
+    <div class="flex gap-4">
+      <a href="{% url 'projects' %}"
+         class="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-xl font-semibold">
+        Proyectos
+      </a>
+
+      <a href="{% url 'chat' %}?chat_id={{ chat_id }}"
+         class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-semibold">
+        Asistente
+      </a>
+    </div>
+  </div>
+
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    {% for project in projects %}
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6
+                  hover:border-green-500 transition flex flex-col justify-between">
+
+        <div>
+          <h2 class="text-xl font-semibold">{{ project.name }}</h2>
+          <p class="text-slate-400 text-sm mt-1">
+            {{ project.description|truncatechars:100 }}
+          </p>
+        </div>
+
+        <div class="mt-5 flex gap-2">
+          <a href="{% url 'project_test_cases' project.id %}"
+             class="flex-1 bg-blue-600 hover:bg-blue-700
+                    px-4 py-2 rounded-xl font-semibold text-sm text-center">
+            Ver
+          </a>
+
+          <a href="{% url 'download_project_test_cases' project.id %}"
+             class="flex-1 bg-green-600 hover:bg-green-700
+                    px-4 py-2 rounded-xl font-semibold text-sm text-center">
+            ⬇ Descargar
+          </a>
+        </div>
+
+      </div>
+    {% empty %}
+      <p class="text-slate-400">No hay casos generados aún.</p>
+    {% endfor %}
+
+  </section>
+
+</div>
+{% endblock %}

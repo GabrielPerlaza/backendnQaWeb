@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Métricas | QA Automation AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+  <h1 class="text-3xl font-bold mb-8">Métricas del Sistema</h1>
+
+  <form method="get" class="mb-8 flex flex-wrap gap-4 items-end">
+
+  <div>
+    <label class="block text-sm text-slate-400 mb-1">Desde</label>
+    <input
+      type="date"
+      name="start_date"
+      value="{{ start_date }}"
+      class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white"
+    >
+  </div>
+
+  <div>
+    <label class="block text-sm text-slate-400 mb-1">Hasta</label>
+    <input
+      type="date"
+      name="end_date"
+      value="{{ end_date }}"
+      class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white"
+    >
+  </div>
+
+  <button
+    type="submit"
+    class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl font-semibold"
+  >
+    Filtrar
+  </button>
+
+  </form>
+  <!-- KPIs -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+    <div class="bg-slate-800 rounded-2xl p-6 text-center">
+      <p class="text-slate-400">Casos Generados</p>
+      <h2 class="text-3xl font-bold mt-2">{{ total_cases }}</h2>
+    </div>
+
+    <div class="bg-slate-800 rounded-2xl p-6 text-center">
+      <p class="text-slate-400">Conversaciones</p>
+      <h2 class="text-3xl font-bold mt-2">{{ total_chats }}</h2>
+    </div>
+
+    <div class="bg-slate-800 rounded-2xl p-6 text-center">
+      <p class="text-slate-400">Proyectos</p>
+      <h2 class="text-3xl font-bold mt-2">{{ total_projects }}</h2>
+    </div>
+
+    <div class="bg-slate-800 rounded-2xl p-6 text-center">
+      <p class="text-slate-400">Tiempo Ahorrado</p>
+      <h2 class="text-3xl font-bold mt-2 text-green-400">
+        {{ time_saved }} min
+      </h2>
+    </div>
+
+  </section>
+
+  <!-- Análisis -->
+  <section class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+    <h2 class="text-xl font-semibold mb-4">Análisis General</h2>
+    <p class="text-slate-300 leading-relaxed">
+      El uso de inteligencia artificial ha permitido acelerar la generación
+      de casos de prueba, reduciendo el tiempo manual y mejorando la calidad
+      del proceso de QA.
+    </p>
+  </section>
+
+  <!-- Gráficas -->
+  <section class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+      <h2 class="text-xl font-semibold mb-4">Casos Generados Diariamente</h2>
+      <canvas id="dailyMetricsChart"></canvas>
+      {{ daily_metrics|json_script:"daily-metrics-data" }}
+      <script>
+      const dailyMetrics = JSON.parse(
+        document.getElementById("daily-metrics-data").textContent
+      );
+
+      const dailyLabels = dailyMetrics.map(item => item.date);
+      const dailyCases = dailyMetrics.map(item => item.cases);
+
+      new Chart(document.getElementById("dailyMetricsChart"), {
+        type: "line",
+        data: {
+          labels: dailyLabels,
+          datasets: [{
+            label: "Casos Generados",
+            data: dailyCases,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+      </script>
+
+
+
+    </div>
+
+    <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+      <h2 class="text-xl font-semibold mb-4">Casos por Proyecto</h2>
+      <canvas id="projectMetricsChart"></canvas>
+      {{ project_metrics|json_script:"project-metrics-data" }}
+      <script>
+      const projectMetrics = JSON.parse(
+        document.getElementById("project-metrics-data").textContent
+      );
+
+      new Chart(document.getElementById("projectMetricsChart"), {
+        type: "bar",
+        data: {
+          labels: projectMetrics.map(p => p.project__name),
+          datasets: [{
+            label: "Casos por Proyecto",
+            data: projectMetrics.map(p => p.cases)
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+      </script>
+    </div>  
+  </section>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</div>
+{% endblock %}

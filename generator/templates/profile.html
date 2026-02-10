@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-10">
+
+  <h1 class="text-3xl font-bold mb-8">Perfil</h1>
+
+  {% if user_form.errors or profile_form.errors %}
+    <div class="bg-red-500/10 border border-red-500 text-red-400 p-4 rounded-xl mb-6">
+      {{ user_form.errors }}
+      {{ profile_form.errors }}
+    </div>
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data"
+        class="bg-slate-800 p-8 rounded-2xl border border-slate-700 space-y-6">
+    {% csrf_token %}
+
+    <!-- Avatar -->
+    <div class="flex items-center gap-6">
+      <img src="{% if request.user.profile.avatar and request.user.profile.avatar.url %}{{ request.user.profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" class="w-24 h-24 rounded-full object-cover border border-slate-600">
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">
+          Foto de perfil
+        </label>
+        <input type="file" name="avatar" accept="image/*" class="block w-full text-sm text-slate-300"/>
+        <p class="text-xs text-slate-500 mt-1"> Formatos permitidos: JPG, PNG. Tamaño máximo recomendado: 2MB.</p>
+      </div>
+    </div>
+
+    <!-- Datos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="text-sm text-slate-400">Nombre</label>
+        {{ user_form.first_name }}
+      </div>
+
+      <div>
+        <label class="text-sm text-slate-400">Apellido</label>
+        {{ user_form.last_name }}
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="text-sm text-slate-400">Email</label>
+        {{ user_form.email }}
+      </div>
+
+      <div>
+        <label class="text-sm text-slate-400">Unidad Educativa</label>
+        {{ profile_form.company }}
+      </div>
+
+      <!-- <div>
+        <label class="text-sm text-slate-400">Rol</label>
+        {{ profile_form.role }}
+      </div> -->
+    </div>
+
+    <!-- Bio -->
+    <div>
+      <label class="text-sm text-slate-400">Biografía</label>
+      {{ profile_form.bio }}
+    </div>
+
+    <!-- Acciones -->
+    <div class="flex justify-between items-center pt-6">
+      <a href="{% url 'password_change' %}" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl font-semibold transition">
+        Cambiar contraseña
+      </a>
+
+      <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl font-semibold transition">
+        Cerrar sesión
+      </a>
+
+      <button
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-semibold transition">
+        Guardar cambios
+      </button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

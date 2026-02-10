@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Historial | QA Automation AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+  <h1 class="text-3xl font-bold mb-8">Historial de Conversaciones</h1>
+
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    {% for chat in chats %}
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-blue-500 transition">
+      <h2 class="text-xl font-semibold mb-1">
+        {{ chat.title }}
+      </h2>
+
+      <p class="text-slate-400 text-sm">
+        {{ chat.created_at|date:"Y-m-d H:i" }}
+      </p>
+
+      {% with last=chat.messages.last %}
+        {% if last %}
+        <p class="mt-4 text-sm text-slate-300 line-clamp-2">
+          <strong>Último mensaje:</strong> {{ last.content|truncatechars:120 }}
+        </p>
+        {% endif %}
+      {% endwith %}
+
+      <a href="{% url 'chat' chat.id %}"
+         class="inline-block mt-4 text-blue-400 hover:text-blue-300 font-medium">
+        Ver detalle →
+      </a>
+    </div>
+    {% empty %}
+      <p class="text-slate-400">No hay conversaciones aún.</p>
+    {% endfor %}
+
+  </section>
+
+</div>
+{% endblock %}

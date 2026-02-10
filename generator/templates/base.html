@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}QA Automation AI{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-slate-900 text-white min-h-screen">
+
+<!-- ============== NAVBAR ============== -->
+<nav class="bg-slate-900/80 backdrop-blur-xl border-b border-slate-700">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3a.75.75 0 00-.75.75V6h6V3.75a.75.75 0 00-.75-.75h-4.5zM4.5 6h15v12.75a1.5 1.5 0 01-1.5 1.5h-12a1.5 1.5 0 01-1.5-1.5V6z"/>
+      </svg>
+      QA Automation AI
+    </h1>
+
+    <div class="flex items-center space-x-6 text-slate-300">
+      <a href="{% url 'dashboard' %}" class="flex items-center gap-2 hover:text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-9 2v8"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <a href="{% url 'chat' %}" class="flex items-center gap-2 hover:text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 20l1.2-3A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        Asistente
+      </a>
+
+      <!-- <a href="{% url 'history' %}" class="flex items-center gap-2 hover:text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M12 2a10 10 0 100 20 10 10 0 000-20z"/>
+        </svg>
+        Historial
+      </a> -->
+
+      <a href="{% url 'metrics' %}" class="flex items-center gap-2 hover:text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3v18m4-14v14m4-10v10"/>
+        </svg>
+        Métricas
+      </a>
+
+      <a href="{% url 'profile' %}" class="flex items-center gap-2 hover:text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1118.879 6.196M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Perfil
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ============== CONTENIDO DINÁMICO ============== -->
+<main class="max-w-7xl mx-auto p-8">
+  {% block content %}{% endblock %}
+</main>
+{% block extra_js %}{% endblock %}
+
+<script>
+function confirmDelete(message = "¿Seguro que deseas eliminar este elemento?") {
+  return confirm(message);
+}
+</script>
+
+</body>
+</html>
